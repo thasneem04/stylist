@@ -57,7 +57,7 @@ const AdminSidebar = () => {
         </nav>
       </header>
 
-      <aside className="w-64 glass border-r border-white/10 hidden lg:flex flex-col">
+      <aside className="w-64 glass border-r border-white/10 hidden lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:flex-col lg:h-screen">
         <div className="p-6 border-b border-white/10">
           <Link
             to="/admin"
