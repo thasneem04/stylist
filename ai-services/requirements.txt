@@ -1,10 +1,8 @@
 fastapi
 uvicorn
 pydantic
-scikit-learn
-pandas
 numpy
 motor
-sentence-transformers
-opencv-python
+opencv-python-headless
 pillow
+python-multipart

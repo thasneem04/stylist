@@ -2,7 +2,6 @@ import os
 from fastapi import FastAPI, Body, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from sentence_transformers import SentenceTransformer, util
 import re
 import cv2
 import numpy as np
@@ -49,13 +48,54 @@ MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://127.0.0.1:27017/ai-fashion-eco
 client = AsyncIOMotorClient(MONGODB_URI)
 db = client["ai-fashion-ecommerce"]
 
-print(f"Using MongoDB URI: {MONGODB_URI.split('@')[-1] if '@' in MONGODB_URI else MONGODB_URI}")
-print("Loading AI Model...")
-model = SentenceTransformer('all-MiniLM-L6-v2')
-print("Model loaded successfully.")
-
 # Load OpenCV Face Detector
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+# Helper functions for lightweight free deployment
+
+def format_product(product):
+    return {
+        "id": str(product["_id"]),
+        "_id": str(product["_id"]),
+        "name": product.get("name"),
+        "price": product.get("price"),
+        "image": product.get("image"),
+        "category": product.get("category"),
+        "occasion": product.get("occasion"),
+        "description": product.get("description"),
+    }
+
+
+def rank_products(query, products, category_filter, occasion_filter, color_filter):
+    query_lower = query.lower()
+    query_tokens = set(re.findall(r"\w+", query_lower))
+    scored = []
+
+    for product in products:
+        text = " ".join([
+            str(product.get("name", "")),
+            str(product.get("category", "")),
+            str(product.get("occasion", "")),
+            " ".join(product.get("colors", []) or []),
+            str(product.get("color", "")),
+            str(product.get("description", "")),
+        ]).lower()
+
+        score = sum(1 for token in query_tokens if token in text)
+
+        if category_filter and category_filter in text:
+            score += 2
+        if occasion_filter and occasion_filter in text:
+            score += 2
+        if color_filter and color_filter in text:
+            score += 2
+        if query_lower in text:
+            score += 1
+
+        scored.append((score, product))
+
+    ranked = sorted(scored, key=lambda item: (-item[0], item[1].get("price", float("inf"))))
+    return [format_product(product) for score, product in ranked]
 
 @app.get("/")
 async def health():
@@ -144,31 +184,8 @@ async def chat(payload: dict = Body(...)):
             "products": []
         }
 
-    product_texts = [
-        f"{p.get('name', '')} {p.get('category', '')} {p.get('occasion', '')} "
-        f"{' '.join(p.get('colors', []) or [])} {p.get('color', '')} {p.get('description', '')}"
-        for p in products
-    ]
-    product_embeddings = model.encode(product_texts, convert_to_tensor=True)
-    query_embedding = model.encode(query, convert_to_tensor=True)
-    
-    cosine_scores = util.cos_sim(query_embedding, product_embeddings)[0]
-    top_k = min(len(products), 4)
-    top_results = cosine_scores.argsort(descending=True)[:top_k]
-    
-    matched_products = []
-    for idx in top_results:
-        p = products[idx]
-        matched_products.append({
-            "id": str(p["_id"]),
-            "_id": str(p["_id"]),
-            "name": p.get("name"),
-            "price": p.get("price"),
-            "image": p.get("image"),
-            "category": p.get("category"),
-            "occasion": p.get("occasion"),
-            "description": p.get("description"),
-        })
+    ranked_products = rank_products(query, products, category_filter, occasion_filter, color_filter)
+    matched_products = ranked_products[:4]
 
     response_text = "Here are Aura picks from this website:"
     if max_price:
