@@ -8,7 +8,8 @@ import toast from "react-hot-toast";
 import { apiUrl, assetUrl } from "../utils/api";
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/420x560?text=No+Image";
 const getImageUrl = (image) => {
-  if (!image || typeof image !== "string" || image.trim() === "") return PLACEHOLDER_IMAGE;
+  if (!image || typeof image !== "string" || image.trim() === "")
+    return PLACEHOLDER_IMAGE;
   return assetUrl(image);
 };
 
