@@ -11,7 +11,8 @@ export const assetUrl = (path) => {
   if (!path || typeof path !== "string") return PLACEHOLDER_IMAGE;
   const normalized = path.trim();
   if (normalized === "") return PLACEHOLDER_IMAGE;
-  if (normalized.startsWith("/uploads") || normalized.includes("/uploads/")) {
+  if (/^https?:\/\//i.test(normalized)) return normalized;
+  if (normalized.startsWith("/uploads") || normalized.startsWith("uploads/")) {
     return `${API_ORIGIN}${normalized.startsWith("/") ? normalized : `/${normalized}`}`;
   }
   return normalized;
