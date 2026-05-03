@@ -7,7 +7,10 @@ import ProductCard from "../components/ProductCard";
 import toast from "react-hot-toast";
 import { apiUrl, assetUrl } from "../utils/api";
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/420x560?text=No+Image";
-const getImageUrl = (image) => assetUrl(image);
+const getImageUrl = (image) => {
+  if (!image || typeof image !== "string" || image.trim() === "") return PLACEHOLDER_IMAGE;
+  return assetUrl(image);
+};
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -158,6 +161,9 @@ const ProductDetails = () => {
             <img
               src={getImageUrl(product.image)}
               alt={product.name}
+              onError={(e) => {
+                e.currentTarget.src = PLACEHOLDER_IMAGE;
+              }}
               className="w-full h-full object-contain"
             />
             {product.discount > 0 && (
