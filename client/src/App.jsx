@@ -1,37 +1,40 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import UserLayout from './layouts/UserLayout';
-import AdminLayout from './layouts/AdminLayout';
-import ProtectedRoute from './routes/ProtectedRoute';
-import AdminRoute from './routes/AdminRoute';
-import Home from './pages/Home';
-import Products from './pages/Products';
-import AIStylist from './pages/AIStylist';
-import ProductDetails from './pages/ProductDetails';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Orders from './pages/Orders';
-import Login from './pages/Login';
-import AdminDashboard from './pages/AdminDashboard';
-import Wishlist from './pages/Wishlist';
-import { Toaster } from 'react-hot-toast';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import UserLayout from "./layouts/UserLayout";
+import AdminLayout from "./layouts/AdminLayout";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import AdminRoute from "./routes/AdminRoute";
+import Home from "./pages/Home";
+import Products from "./pages/Products";
+import AIStylist from "./pages/AIStylist";
+import ProductDetails from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Orders from "./pages/Orders";
+import Login from "./pages/Login";
+import AdminDashboard from "./pages/AdminDashboard";
+import Wishlist from "./pages/Wishlist";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <Router>
       <>
-        <Toaster position="top-center" reverseOrder={false} 
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
           toastOptions={{
             style: {
-              background: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)',
-              color: '#fff',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }
+              background: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              color: "#fff",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            },
           }}
         />
         <Routes>
           <Route element={<UserLayout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/ai-stylist" element={<AIStylist />} />
@@ -50,7 +53,10 @@ function App() {
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard tab="dashboard" />} />
-              <Route path="products" element={<AdminDashboard tab="products" />} />
+              <Route
+                path="products"
+                element={<AdminDashboard tab="products" />}
+              />
               <Route path="orders" element={<AdminDashboard tab="orders" />} />
             </Route>
           </Route>

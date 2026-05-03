@@ -27,6 +27,7 @@ import {
   updateOrderStatus,
 } from "../utils/orders";
 import { apiUrl, assetUrl } from "../utils/api";
+import { useAuth } from "../context/AuthContext";
 
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/80x105?text=No+Image";
 
@@ -55,6 +56,7 @@ const AdminDashboard = ({ tab = "dashboard" }) => {
     { size: "L", price: "", originalPrice: "", stock: 0 },
   ]);
 
+  const { adminToken } = useAuth();
   const getImageUrl = (image) => {
     if (!image || typeof image !== "string" || image.trim() === "") {
       return PLACEHOLDER_IMAGE;
@@ -68,10 +70,8 @@ const AdminDashboard = ({ tab = "dashboard" }) => {
   );
   const getCustomerName = (order) =>
     order.user || order.shippingDetails?.fullName || "Customer";
-  const authHeaders = () => {
-    const token = localStorage.getItem("aura_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
+  const authHeaders = () =>
+    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
   const fetchProducts = useCallback(async () => {
     try {
