@@ -17,12 +17,21 @@ const getSalePrice = (product) =>
 const formatProduct = (product) =>
   `${product.name} - ₹${getSalePrice(product).toFixed(2)}`;
 
+const PLACEHOLDER_IMAGE = "https://via.placeholder.com/420x560?text=No+Image";
+
 const normalizeProduct = (product) => ({
   ...product,
   id: product._id || product.id,
   price: getSalePrice(product),
   image: assetUrl(product.image),
 });
+
+const getChatbotImageUrl = (image) => {
+  if (!image || typeof image !== "string" || image.trim() === "") {
+    return PLACEHOLDER_IMAGE;
+  }
+  return assetUrl(image);
+};
 
 const getSuggestionGroups = (suggestions) => {
   const product = [];
@@ -522,8 +531,11 @@ const Chatbot = () => {
                         className="min-w-30 bg-white/5 rounded-lg border border-white/10 overflow-hidden shrink-0 group hover:border-accent/50 transition-colors"
                       >
                         <img
-                          src={assetUrl(p.image)}
+                          src={getChatbotImageUrl(p.image)}
                           alt={p.name}
+                          onError={(e) => {
+                            e.currentTarget.src = PLACEHOLDER_IMAGE;
+                          }}
                           className="w-full h-24 object-cover"
                         />
                         <div className="p-2">
